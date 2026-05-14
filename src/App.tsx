@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import CalendarView from './pages/CalendarView'
+import Admin from './pages/Admin'
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth()
@@ -23,6 +24,11 @@ function AppRoutes() {
       <Route path="/calendar" element={
         <ProtectedRoute>
           <CalendarView />
+        </ProtectedRoute>
+      } />
+      <Route path="/admin" element={
+        <ProtectedRoute>
+          <Admin />
         </ProtectedRoute>
       } />
     </Routes>

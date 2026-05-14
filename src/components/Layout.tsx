@@ -3,10 +3,11 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { Link, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { LogOut, CheckSquare, Calendar as CalendarIcon, User, LayoutDashboard } from 'lucide-react'
+import { LogOut, CheckSquare, Calendar as CalendarIcon, User, LayoutDashboard, Shield } from 'lucide-react'
+import AdBanner from './AdBanner'
 
 export default function Layout({ children }: { children: ReactNode }) {
-  const { signOut, user } = useAuth()
+  const { signOut, user, isAdmin } = useAuth()
   const location = useLocation()
   const [pendingCount, setPendingCount] = useState(0)
 
@@ -64,7 +65,18 @@ export default function Layout({ children }: { children: ReactNode }) {
               icon={<CalendarIcon size={18} />}
               label="Vista Semanal"
             />
+            {isAdmin && (
+              <NavLink 
+                to="/admin" 
+                active={location.pathname === '/admin'}
+                icon={<Shield size={18} />}
+                label="Panel Admin"
+              />
+            )}
           </nav>
+
+          {/* Advertisement */}
+          <AdBanner type="sidebar" />
 
           {/* User Summary */}
           <div className="mt-auto pt-6 border-t border-gray-50">
