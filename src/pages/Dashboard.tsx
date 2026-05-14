@@ -43,7 +43,11 @@ export default function Dashboard() {
   const metrics = {
     pending: tareas.filter(t => t.estado === 'pendiente').length,
     delivered: tareas.filter(t => t.estado === 'entregada').length,
-    overdue: tareas.filter(t => t.estado !== 'entregada' && isPast(new Date(t.fecha_entrega + 'T23:59:59')) && !isToday(new Date(t.fecha_entrega + 'T12:00:00'))).length
+    overdue: tareas.filter(t => {
+      if (t.estado === 'entregada') return false
+      const limit = t.hora_entrega ? new Date(`${t.fecha_entrega}T${t.hora_entrega}`) : new Date(`${t.fecha_entrega}T23:59:59`)
+      return isPast(limit)
+    }).length
   }
 
   return (
@@ -140,8 +144,9 @@ function TaskCard({ tarea, onUpdate, onEdit }: { tarea: Tarea, onUpdate: () => v
   }
 
   const dueDate = new Date(tarea.fecha_entrega + 'T12:00:00')
-  const isOverdue = tarea.estado !== 'entregada' && isPast(new Date(tarea.fecha_entrega + 'T23:59:59')) && !isToday(dueDate)
-  const isDueToday = tarea.estado !== 'entregada' && isToday(dueDate)
+  const limitDate = tarea.hora_entrega ? new Date(`${tarea.fecha_entrega}T${tarea.hora_entrega}`) : new Date(`${tarea.fecha_entrega}T23:59:59`)
+  const isOverdue = tarea.estado !== 'entregada' && isPast(limitDate)
+  const isDueToday = tarea.estado !== 'entregada' && isToday(dueDate) && !isOverdue
   
   const statusColor = 
     tarea.estado === 'entregada' ? 'bg-[#22C55E]' :

@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Layout from '../components/Layout'
 import TaskModal from '../components/TaskModal'
-import { format, startOfWeek, addDays, isSameDay, isToday, addWeeks, subWeeks, endOfWeek } from 'date-fns'
+import { format, startOfWeek, addDays, isSameDay, isToday, addWeeks, subWeeks, endOfWeek, isPast } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 
@@ -134,7 +134,7 @@ export default function CalendarView() {
                         <div className="flex items-center gap-1.5">
                           <div className={`w-1.5 h-1.5 rounded-full ${
                             tarea.estado === 'entregada' ? 'bg-[#22C55E]' : 
-                            isPast(new Date(tarea.fecha_entrega + 'T23:59:59')) ? 'bg-[#EF4444]' : 'bg-[#5B4FCF]'
+                            isPast(tarea.hora_entrega ? new Date(`${tarea.fecha_entrega}T${tarea.hora_entrega}`) : new Date(`${tarea.fecha_entrega}T23:59:59`)) ? 'bg-[#EF4444]' : 'bg-[#5B4FCF]'
                           }`} />
                           <div className="font-bold text-[#1A1A1A] line-clamp-1 leading-tight">
                             {tarea.titulo}
