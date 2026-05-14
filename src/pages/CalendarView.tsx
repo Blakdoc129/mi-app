@@ -90,6 +90,7 @@ export default function CalendarView() {
           </button>
         </div>
       </div>
+    </div>
 
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
