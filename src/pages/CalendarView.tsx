@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Layout from '../components/Layout'
+import TaskModal from '../components/TaskModal'
 import { format, startOfWeek, addDays, isSameDay, isToday, addWeeks, subWeeks, endOfWeek } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
 
 type Tarea = {
   id: string;
@@ -20,23 +21,25 @@ export default function CalendarView() {
   const [tareas, setTareas] = useState<Tarea[]>([])
   const [loading, setLoading] = useState(true)
   const [currentDate, setCurrentDate] = useState(new Date())
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const startOfCurrentWeek = startOfWeek(currentDate, { weekStartsOn: 1 })
   const endOfCurrentWeek = endOfWeek(currentDate, { weekStartsOn: 1 })
   const weekDays = Array.from({ length: 7 }).map((_, i) => addDays(startOfCurrentWeek, i))
 
+  const fetchTareas = async () => {
+    if (!user) return
+    setLoading(true)
+    const { data } = await supabase
+      .from('tareas')
+      .select('*')
+      .order('fecha_entrega', { ascending: true })
+    
+    if (data) setTareas(data)
+    setLoading(false)
+  }
+
   useEffect(() => {
-    const fetchTareas = async () => {
-      if (!user) return
-      setLoading(true)
-      const { data } = await supabase
-        .from('tareas')
-        .select('*')
-        .order('fecha_entrega', { ascending: true })
-      
-      if (data) setTareas(data)
-      setLoading(false)
-    }
     fetchTareas()
   }, [user])
 
@@ -57,7 +60,16 @@ export default function CalendarView() {
           </p>
         </div>
 
-        <div className="flex items-center bg-white border border-gray-100 rounded-2xl p-1 shadow-soft">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="bg-[#5B4FCF] hover:bg-[#4A3EB8] text-white px-5 py-2.5 rounded-2xl flex items-center gap-2 font-bold transition-soft shadow-soft active:scale-95 group"
+          >
+            <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
+            <span className="hidden sm:inline">Nueva Tarea</span>
+          </button>
+
+          <div className="flex items-center bg-white border border-gray-100 rounded-2xl p-1 shadow-soft">
           <button 
             onClick={() => navigateWeek('prev')}
             className="p-2 hover:bg-gray-50 text-gray-500 rounded-xl transition-colors"
@@ -149,6 +161,11 @@ export default function CalendarView() {
           })}
         </div>
       )}
+      <TaskModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={fetchTareas} 
+      />
     </Layout>
   )
 }
