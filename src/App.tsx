@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import CalendarView from './pages/CalendarView'
 import Admin from './pages/Admin'
+import UpdatePassword from './pages/UpdatePassword'
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth()
@@ -16,6 +17,7 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/update-password" element={<UpdatePassword />} />
       <Route path="/" element={
         <ProtectedRoute>
           <Dashboard />

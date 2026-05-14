@@ -5,11 +5,27 @@ import AdBanner from '../components/AdBanner'
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true)
+  const [isResetMode, setIsResetMode] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+    setMessage(null)
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/update-password`,
+    })
+
+    if (error) setError(error.message)
+    else setMessage('Se ha enviado un enlace de recuperación a tu correo.')
+    setLoading(false)
+  }
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,14 +61,14 @@ export default function Login() {
               <CheckSquare size={28} />
             </div>
             <h2 className="text-3xl font-black text-[#1A1A1A] tracking-tight">
-              {isLogin ? '¡Bienvenido de nuevo!' : 'Crea tu espacio'}
+              {isResetMode ? 'Recuperar Clave' : isLogin ? '¡Bienvenido de nuevo!' : 'Crea tu espacio'}
             </h2>
             <p className="text-gray-400 mt-2 font-medium">
-              {isLogin ? 'Tus tareas te están esperando.' : 'Organiza tu vida universitaria hoy.'}
+              {isResetMode ? 'Te enviaremos un enlace a tu correo.' : isLogin ? 'Tus tareas te están esperando.' : 'Organiza tu vida universitaria hoy.'}
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleAuth}>
+          <form className="space-y-5" onSubmit={isResetMode ? handleResetPassword : handleAuth}>
             <div className="space-y-4">
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Email Universitario</label>
@@ -69,20 +85,31 @@ export default function Login() {
                 </div>
               </div>
               
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest ml-1">Contraseña</label>
-                <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#5B4FCF] transition-colors" size={18} />
-                  <input
-                    type="password"
-                    required
-                    className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#5B4FCF]/30 focus:ring-4 focus:ring-[#5B4FCF]/5 outline-none transition-soft font-medium text-[#1A1A1A]"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+              {!isResetMode && (
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-center px-1">
+                    <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Contraseña</label>
+                    <button 
+                      type="button"
+                      onClick={() => setIsResetMode(true)}
+                      className="text-[10px] font-bold text-[#5B4FCF] hover:underline"
+                    >
+                      ¿Olvidaste tu clave?
+                    </button>
+                  </div>
+                  <div className="relative group">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#5B4FCF] transition-colors" size={18} />
+                    <input
+                      type="password"
+                      required
+                      className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border border-transparent rounded-2xl focus:bg-white focus:border-[#5B4FCF]/30 focus:ring-4 focus:ring-[#5B4FCF]/5 outline-none transition-soft font-medium text-[#1A1A1A]"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {error && (
@@ -104,7 +131,7 @@ export default function Login() {
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : (
                 <>
-                  <span>{isLogin ? 'Iniciar Sesión' : 'Registrarse'}</span>
+                  <span>{isResetMode ? 'Enviar Enlace' : isLogin ? 'Iniciar Sesión' : 'Registrarse'}</span>
                   <Sparkles size={18} />
                 </>
               )}
@@ -112,12 +139,21 @@ export default function Login() {
           </form>
 
           <div className="mt-8 text-center pt-6 border-t border-gray-50">
-            <button
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-xs font-bold text-gray-400 hover:text-[#5B4FCF] transition-colors uppercase tracking-widest"
-            >
-              {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
-            </button>
+            {isResetMode ? (
+              <button
+                onClick={() => setIsResetMode(false)}
+                className="text-xs font-bold text-[#5B4FCF] hover:underline uppercase tracking-widest"
+              >
+                Volver al inicio de sesión
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-xs font-bold text-gray-400 hover:text-[#5B4FCF] transition-colors uppercase tracking-widest"
+              >
+                {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
+              </button>
+            )}
           </div>
         </div>
         
