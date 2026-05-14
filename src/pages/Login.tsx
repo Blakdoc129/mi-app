@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { CheckSquare, Loader2, Sparkles, Mail, Lock } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
+import { useEffect } from 'react'
 import AdBanner from '../components/AdBanner'
 
 export default function Login() {
@@ -11,6 +14,14 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const navigate = useNavigate()
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if (user) {
+      navigate('/')
+    }
+  }, [user, navigate])
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,6 +48,7 @@ export default function Login() {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
+        navigate('/')
       } else {
         const { error } = await supabase.auth.signUp({ email, password })
         if (error) throw error

@@ -9,7 +9,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
 }
 
-const ADMIN_EMAIL = 'angeldanielreyesm23@cetis030.edu.mx'
+const ADMIN_EMAIL = 'angelmadrid524@gmail.com'
 
 const AuthContext = createContext<AuthContextType>({ 
   session: null, 
